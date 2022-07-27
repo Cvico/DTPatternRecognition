@@ -38,7 +38,7 @@ def doRun(obj):
     obj.run()
     return 0
 
-def load_data(file_, vars_ = [], sel="", treename = "DTTree", start = None, stop = 100): 
+def load_data(file_, vars_ = None, sel=None, obj_sel = None, treename = "DTTree", start = None, stop = None): 
     '''
     Esta funcion sirve para leer rootfiles y convertirlas en
     pandas.DataFrames --> 
@@ -53,7 +53,8 @@ def load_data(file_, vars_ = [], sel="", treename = "DTTree", start = None, stop
     tfile = r.TFile.Open(file_)    
     
     ttree = tfile.Get(treename)
-    arr = tree2array(ttree, branches = vars_, selection = sel, start = start, stop = stop)
+    #    arr = tree2array(ttree, branches = vars_, object_selection = obj_sel,  start = start, stop = stop)
+    arr = tree2array(ttree, branches=vars_, selection=sel, object_selection = obj_sel, start = start, stop = stop)
     
     # -- Convertimos a dataframe
     df_out = pd.DataFrame(arr, columns=vars_)       
@@ -66,10 +67,8 @@ class baseDumper(object):
         self.options = options
         self.iJob    = iJob
         self.nJobs   = nJobs
-        self.wheels = []
-        self.wheels.append(wheel)
-        self.sectors = []
-        self.sectors.append(sector)
+        self.wheels = [] + wheel
+        self.sectors = [] + sector 
         self.verbose = options.verbose
         self.stations = [1,2,3,4]
 
@@ -93,7 +92,8 @@ class baseDumper(object):
         
     def loadVariables(self): 
         self.vars_ = []
-        
+        self.obj_vars_ = []
+
         if self.verbose: print("  - general variables")
         self.vars_.append("runnumber")
         self.vars_.append("lumiblock")
@@ -101,24 +101,27 @@ class baseDumper(object):
        
         if (options.dumpDigis): 
             if self.verbose: print("  - DT digis")
-            self.vars_.append("digi_wheel")
-            self.vars_.append("digi_sector")
-            self.vars_.append("digi_station")
-            self.vars_.append("digi_sl")
-            self.vars_.append("digi_layer")
-            self.vars_.append("digi_wire")
-            self.vars_.append("digi_time")
+            self.obj_vars_.append("digi_wheel")
+            self.obj_vars_.append("digi_sector")
+            self.obj_vars_.append("digi_station")
+            self.obj_vars_.append("digi_sl")
+            self.obj_vars_.append("digi_layer")
+            self.obj_vars_.append("digi_wire")
+            self.obj_vars_.append("digi_time")
+            
+        for v in self.obj_vars_:
+            self.vars_.append(v)
 
-        
+
     def loadDataFrames(self):        
         self.dfs_ = {}
         for key,sel in self.sels_.items():
-            self.dfs_[key] = load_data(self.file_,self.vars_,sel)
+            obj_sel = { sel : self.obj_vars_}
+            self.dfs_[key] = load_data(self.file_,self.vars_,sel=sel,obj_sel=obj_sel,stop=options.nevents)
         
     def saveDataFrames(self):
         for key, df in self.dfs_.items():
             outfilename = options.outpath + key
-            df.to_pickle(outfilename+".pkl")
             df.to_csv(outfilename+".csv")
     
     def run(self):
@@ -130,13 +133,13 @@ class baseDumper(object):
 
         if self.verbose: print("Loading selections...")
         self.loadSelections()
-
+        
         if self.verbose: print("Loading dataFrames...")
         self.loadDataFrames()
 
         if self.verbose: print("Saving dataFrames...")
         self.saveDataFrames()
-              
+        
 
 def main_run(opts,classtype):   
     
@@ -165,9 +168,11 @@ def main_run(opts,classtype):
         for i in range(nJobs):
             processes.append(multiprocessing.Process(target=doRun, args=[DTDArray[i]]))
             processes[-1].start()
-        
+            
         for i in range(nJobs):
             processes[i].join()
+
+
         print("We finished")
 
     else:
