@@ -67,9 +67,20 @@ class baseDumper(object):
         self.options = options
         self.iJob    = iJob
         self.nJobs   = nJobs
-        self.wheels = [] + wheel
-        self.sectors = [] + sector 
         self.verbose = options.verbose
+        
+        self.wheels  = []
+        if isinstance(wheel, list):
+            for w in wheel : self.wheels.append(w)
+        else:
+            self.wheels.append(wheel)
+            
+        self.sectors = [] 
+        if isinstance(sector, list): 
+            for s in sector: self.sectors.append(s)
+        else: 
+            self.sectors.append(sector)
+
         self.stations = [1,2,3,4]
 
         if not(os.path.isdir(options.outpath)):
