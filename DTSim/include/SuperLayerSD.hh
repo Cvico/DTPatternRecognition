@@ -24,47 +24,37 @@
 // ********************************************************************
 //
 //
-/// \file B5/include/EventAction.hh
-/// \brief Definition of the B5::EventAction class
+/// \file B5/include/SuperLayerSD.hh
+/// \brief Definition of the B5::SuperLayerSD class
 
-#ifndef B5EventAction_h
-#define B5EventAction_h 1
+#ifndef B5SuperLayerSD_h
+#define B5SuperLayerSD_h 1
 
-#include "G4UserEventAction.hh"
-#include "globals.hh"
+#include "G4VSensitiveDetector.hh"
 
-#include <vector>
-#include <array>
+#include "SuperLayerHit.hh"
 
-// named constants
-const G4int kDim = 3;
-const G4int kH1 = 0;
-const G4int kH2 = 1;
+class G4Step;
+class G4HCofThisEvent;
+class G4TouchableHistory;
 
 namespace DTSim
 {
 
-/// Event action
+/// Drift chamber sensitive detector
 
-class EventAction : public G4UserEventAction
+class SuperLayerSD : public G4VSensitiveDetector
 {
-public:
-    EventAction();
-    ~EventAction() override = default;
+  public:
+    SuperLayerSD(G4String name);
+    ~SuperLayerSD() override = default;
 
-    void BeginOfEventAction(const G4Event*) override;
-    void EndOfEventAction(const G4Event*) override;
+    void Initialize(G4HCofThisEvent*HCE) override;
+    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) override;
 
-private:
-    // hit collections Ids
-    std::array<G4int, kDim> fDriftHCID = { -1, -1 };
-
-    // histograms Ids
-    std::array<std::array<G4int, kDim>, kDim> fDriftHistoID
-      {{ {{ -1, -1 }}, {{ -1, -1 }} }};
-        // std::array<T, N> is an aggregate that contains a C array.
-        // To initialize it, we need outer braces for the class itself
-        // and inner braces for the C array
+  private:
+    SuperLayerHitsCollection* fHitsCollection = nullptr;
+    G4int fHCID = -1;
 };
 
 }

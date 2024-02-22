@@ -49,6 +49,7 @@ RunAction::RunAction()
   // The choice of the output format is done via the specified
   // file extension.
   auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->SetDefaultFileType("root");
 
   // Create directories
   //analysisManager->SetHistoDirectoryName("histograms");
@@ -56,24 +57,39 @@ RunAction::RunAction()
   analysisManager->SetVerboseLevel(1);
   analysisManager->SetNtupleMerging(true);
     // Note: merging ntuples is available only with Root output
+  analysisManager->SetFileName("Dtsim");
 
   // Book histograms, ntuple
   //
+  // Creating 1D histograms
+  analysisManager
+    ->CreateH1("SuperLayer1","SuperLayer 1 # Hits", 50, 0., 50); // h1 Id = 0
+  analysisManager
+    ->CreateH1("SuperLayer2","SuperLayer 2 # Hits", 50, 0., 50); // h1 Id = 1
+  analysisManager
+    ->CreateH1("SuperLayer3","SuperLayer 3 # Hits", 50, 0., 50); // h1 Id = 1
 
-  // Creating histograms
-  analysisManager->CreateH1("Eabs","Edep in absorber", 110, 0., 330*MeV);
-  analysisManager->CreateH1("Egap","Edep in gap", 100, 0., 30*MeV);
-  analysisManager->CreateH1("Labs","trackL in absorber", 100, 0., 50*cm);
-  analysisManager->CreateH1("Lgap","trackL in gap", 100, 0., 50*cm);
+  // Creating 2D histograms
+  analysisManager
+    ->CreateH2("SuperLayer1 XY","SuperLayer 1 X vs Y",           // h2 Id = 0
+               50, -1000., 1000, 50, -300., 300.);
+  analysisManager
+    ->CreateH2("SuperLayer2 XY","SuperLayer 2 X vs Y",           // h2 Id = 0
+               50, -1000., 1000, 50, -300., 300.);
+  analysisManager
+    ->CreateH2("SuperLayer3 XY","SuperLayer 3 X vs Y",           // h2 Id = 0
+               50, -1000., 1000, 50, -300., 300.);
 
-  // Creating ntuple
-  //
-  analysisManager->CreateNtuple("B4", "Edep and TrackL");
-  analysisManager->CreateNtupleDColumn("Eabs");
-  analysisManager->CreateNtupleDColumn("Egap");
-  analysisManager->CreateNtupleDColumn("Labs");
-  analysisManager->CreateNtupleDColumn("Lgap");
+  analysisManager->CreateNtuple("DTSim", "Hits");
+  analysisManager->CreateNtupleIColumn("SL1Hits");  // column Id = 0
+  analysisManager->CreateNtupleIColumn("SL2Hits");  // column Id = 1
+  analysisManager->CreateNtupleIColumn("SL3Hits");  // column Id = 2
   analysisManager->FinishNtuple();
+
+
+  // Set ntuple output file
+  analysisManager->SetNtupleFileName(0, "DTsimNtuple");
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

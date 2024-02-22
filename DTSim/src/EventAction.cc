@@ -24,134 +24,151 @@
 // ********************************************************************
 //
 //
-/// \file B4/B4d/src/EventAction.cc
-/// \brief Implementation of the B4d::EventAction class
+/// \file B5/src/EventAction.cc
+/// \brief Implementation of the B5::EventAction class
 
 #include "EventAction.hh"
+#include "SuperLayerHit.hh"
 
-#include "G4AnalysisManager.hh"
-#include "G4RunManager.hh"
 #include "G4Event.hh"
-#include "G4SDManager.hh"
+#include "G4RunManager.hh"
+#include "G4EventManager.hh"
 #include "G4HCofThisEvent.hh"
-#include "G4UnitsTable.hh"
+#include "G4VHitsCollection.hh"
+#include "G4SDManager.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4ios.hh"
+#include "G4AnalysisManager.hh"
 
-#include "Randomize.hh"
-#include <iomanip>
+using std::array;
+using std::vector;
+
+namespace {
+
+// Utility function which finds a hit collection with the given Id
+// and print warnings if not found
+G4VHitsCollection* GetHC(const G4Event* event, G4int collId) {
+  auto hce = event->GetHCofThisEvent();
+  if (!hce) {
+      G4ExceptionDescription msg;
+      msg << "No hits collection of this event found." << G4endl;
+      G4Exception("EventAction::EndOfEventAction()",
+                  "Code001", JustWarning, msg);
+      return nullptr;
+  }
+
+  auto hc = hce->GetHC(collId);
+  if ( ! hc) {
+    G4ExceptionDescription msg;
+    msg << "Hits collection " << collId << " of this event not found." << G4endl;
+    G4Exception("EventAction::EndOfEventAction()",
+                "Code001", JustWarning, msg);
+  }
+  return hc;
+}
+
+}
 
 namespace DTSim
 {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4THitsMap<G4double>*
-EventAction::GetHitsCollection(G4int hcID,
-                                  const G4Event* event) const
+EventAction::EventAction()
 {
-  auto hitsCollection
-    = static_cast<G4THitsMap<G4double>*>(
-        event->GetHCofThisEvent()->GetHC(hcID));
+  // set printing per each event
+  G4RunManager::GetRunManager()->SetPrintProgress(1);
+}
 
-  if ( ! hitsCollection ) {
-    G4ExceptionDescription msg;
-    msg << "Cannot access hitsCollection ID " << hcID;
-    G4Exception("EventAction::GetHitsCollection()",
-      "MyCode0003", FatalException, msg);
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void EventAction::BeginOfEventAction(const G4Event*)
+{
+  // Find hit collections and histogram Ids by names (just once)
+  // and save them in the data members of this class
+
+  if (fDriftHCID[0] == -1) {
+    auto sdManager = G4SDManager::GetSDMpointer();
+    auto analysisManager = G4AnalysisManager::Instance();
+
+    // hits collections names
+    array<G4String, kDim> dHCName
+      = {{ "sl1/SuperLayerColl", "sl2/SuperLayerColl" , "sl3/SuperLayerColl" }};
+
+    // histograms names
+    array<array<G4String, kDim>, kDim> histoName
+      = {{ {{ "SuperLayer1", "SuperLayer2", "SuperLayer3" }}, {{ "SuperLayer1 XY", "SuperLayer2 XY", "SuperLayer3 XY" }} }};
+
+    for (G4int iDet = 0; iDet < kDim; ++iDet) {
+      // hit collections IDs
+      fDriftHCID[iDet] = sdManager->GetCollectionID(dHCName[iDet]);
+
+      // histograms IDs
+      fDriftHistoID[kH1][iDet] = analysisManager->GetH1Id(histoName[kH1][iDet]);
+      fDriftHistoID[kH2][iDet] = analysisManager->GetH2Id(histoName[kH2][iDet]);
+    }
   }
-
-  return hitsCollection;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4double EventAction::GetSum(G4THitsMap<G4double>* hitsMap) const
-{
-  G4double sumValue = 0.;
-  for ( auto it : *hitsMap->GetMap() ) {
-    // hitsMap->GetMap() returns the map of std::map<G4int, G4double*>
-    sumValue += *(it.second);
-  }
-  return sumValue;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void EventAction::PrintEventStatistics(
-                            G4double absoEdep, G4double absoTrackLength,
-                            G4double gapEdep, G4double gapTrackLength) const
-{
-  // Print event statistics
-  //
-  G4cout
-     << "   Absorber: total energy: "
-     << std::setw(7) << G4BestUnit(absoEdep, "Energy")
-     << "       total track length: "
-     << std::setw(7) << G4BestUnit(absoTrackLength, "Length")
-     << G4endl
-     << "        Gap: total energy: "
-     << std::setw(7) << G4BestUnit(gapEdep, "Energy")
-     << "       total track length: "
-     << std::setw(7) << G4BestUnit(gapTrackLength, "Length")
-     << G4endl;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void EventAction::BeginOfEventAction(const G4Event* /*event*/)
-{}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::EndOfEventAction(const G4Event* event)
 {
-   // Get hist collections IDs
-  if ( fAbsoEdepHCID == -1 ) {
-    fAbsoEdepHCID
-      = G4SDManager::GetSDMpointer()->GetCollectionID("Absorber/Edep");
-    fGapEdepHCID
-      = G4SDManager::GetSDMpointer()->GetCollectionID("Gap/Edep");
-    fAbsoTrackLengthHCID
-      = G4SDManager::GetSDMpointer()->GetCollectionID("Absorber/TrackLength");
-    fGapTrackLengthHCID
-      = G4SDManager::GetSDMpointer()->GetCollectionID("Gap/TrackLength");
-  }
-
-  // Get sum values from hits collections
   //
-  auto absoEdep = GetSum(GetHitsCollection(fAbsoEdepHCID, event));
-  auto gapEdep = GetSum(GetHitsCollection(fGapEdepHCID, event));
+  // Fill histograms & ntuple
+  //
 
-  auto absoTrackLength
-    = GetSum(GetHitsCollection(fAbsoTrackLengthHCID, event));
-  auto gapTrackLength
-    = GetSum(GetHitsCollection(fGapTrackLengthHCID, event));
-
-  // get analysis manager
+  // Get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
 
-  // fill histograms
-  //
-  analysisManager->FillH1(0, absoEdep);
-  analysisManager->FillH1(1, gapEdep);
-  analysisManager->FillH1(2, absoTrackLength);
-  analysisManager->FillH1(3, gapTrackLength);
+  // Drift chambers hits
+  for (G4int iDet = 0; iDet < kDim; ++iDet) {
+    auto hc = GetHC(event, fDriftHCID[iDet]);
+    if ( ! hc ) return;
 
-  // fill ntuple
-  //
-  analysisManager->FillNtupleDColumn(0, absoEdep);
-  analysisManager->FillNtupleDColumn(1, gapEdep);
-  analysisManager->FillNtupleDColumn(2, absoTrackLength);
-  analysisManager->FillNtupleDColumn(3, gapTrackLength);
+    auto nhit = hc->GetSize();
+    analysisManager->FillH1(fDriftHistoID[kH1][iDet], nhit );
+    // columns 0, 1
+    analysisManager->FillNtupleIColumn(iDet, nhit);
+
+    for (unsigned long i = 0; i < nhit; ++i) {
+      auto hit = static_cast<SuperLayerHit*>(hc->GetHit(i));
+      auto localPos = hit->GetLocalPos();
+      analysisManager->FillH2(fDriftHistoID[kH2][iDet], localPos.x(), localPos.y());
+    }
+  }
+
+
   analysisManager->AddNtupleRow();
 
-  //print per event (modulo n)
   //
-  auto eventID = event->GetEventID();
+  // Print diagnostics
+  //
+
   auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
-  if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
-    PrintEventStatistics(absoEdep, absoTrackLength, gapEdep, gapTrackLength);
-    G4cout << "--> End of event: " << eventID << "\n" << G4endl;  
+  if ( printModulo == 0 || event->GetEventID() % printModulo != 0) return;
+
+  auto primary = event->GetPrimaryVertex(0)->GetPrimary(0);
+  G4cout
+    << G4endl
+    << ">>> Event " << event->GetEventID() << " >>> Simulation truth : "
+    << primary->GetG4code()->GetParticleName()
+    << " " << primary->GetMomentum() << G4endl;
+
+
+  // Drift chambers
+  for (G4int iDet = 0; iDet < kDim; ++iDet) {
+    auto hc = GetHC(event, fDriftHCID[iDet]);
+    if ( ! hc ) return;
+    G4cout << "Drift Chamber " << iDet + 1 << " has " <<  hc->GetSize()  << " hits." << G4endl;
+    for (auto layer = 0; layer < 4; ++layer) {
+      for (unsigned int i = 0; i < hc->GetSize(); i++) {
+        auto hit = static_cast<SuperLayerHit*>(hc->GetHit(i));
+        if (hit->GetLayerID() == layer) hit->Print();
+      }
+    }
   }
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

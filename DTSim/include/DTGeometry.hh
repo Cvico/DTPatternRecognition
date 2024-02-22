@@ -15,6 +15,7 @@
 class G4VPhysicalVolume;
 class G4GlobalMagFieldMessenger;
 class G4UniformMagField;
+class G4Material;
 
 /// Detector construction
 
@@ -29,6 +30,8 @@ class DTGeometry : public G4VUserDetectorConstruction
     
     void ConstructMaterials();
     
+    void buildSuperLayer(G4LogicalVolume* superLayerLV, G4Material* cellMaterial, G4int nofLayers, G4int nofCells, G4double layerThickness, G4double cellWidth, G4double dtWidth);
+
   private:
     
     void DefineMaterials();
@@ -37,7 +40,10 @@ class DTGeometry : public G4VUserDetectorConstruction
 
     // data members
     //
-    G4LogicalVolume* yokeLV = nullptr;
+    G4LogicalVolume* fYokeLV = nullptr;
+    G4LogicalVolume* fSuperLayer1LV = nullptr;
+    G4LogicalVolume* fSuperLayer2LV = nullptr;
+    G4LogicalVolume* fSuperLayer3LV = nullptr;
 
     static G4ThreadLocal G4UniformMagField* fMagneticField;
     static G4ThreadLocal G4FieldManager* fFieldMgr;
