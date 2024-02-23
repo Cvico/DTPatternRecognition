@@ -40,7 +40,9 @@ namespace DTSim
 
 void ActionInitialization::BuildForMaster() const
 {
-  SetUserAction(new RunAction);
+  auto eventAction = new EventAction;
+  SetUserAction(new RunAction(eventAction));
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -48,8 +50,12 @@ void ActionInitialization::BuildForMaster() const
 void ActionInitialization::Build() const
 {
   SetUserAction(new PrimaryGeneratorAction);
-  SetUserAction(new RunAction);
-  SetUserAction(new EventAction);
+
+  auto eventAction = new EventAction;
+  SetUserAction(eventAction);
+
+  SetUserAction(new RunAction(eventAction));
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

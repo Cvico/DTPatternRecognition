@@ -45,7 +45,7 @@ namespace DTSim
 SuperLayerSD::SuperLayerSD(G4String name)
 : G4VSensitiveDetector(name)
 {
-  collectionName.insert("driftChamberColl");
+  collectionName.insert("SuperLayerColl");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

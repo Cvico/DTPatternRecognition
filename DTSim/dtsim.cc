@@ -21,6 +21,7 @@
 #include "G4RunManagerFactory.hh"
 #include "G4SteppingVerbose.hh"
 #include "G4TScoreNtupleWriter.hh"
+#include "G4StepLimiterPhysics.hh"
 #include "G4UIcommand.hh"
 #include "G4UImanager.hh"
 #include "G4UIExecutive.hh"
@@ -30,89 +31,33 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-namespace {
-  void PrintUsage() {
-    G4cerr << " Usage: " << G4endl;
-    G4cerr << " dtsim [-m macro ] [-u UIsession] [-t nThreads] [-vDefault]"
-           << G4endl;
-    G4cerr << "   note: -t option is available only for multi-threaded mode."
-           << G4endl;
-  }
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 int main(int argc,char** argv)
 {
-  // Evaluate arguments
-  //
-  if ( argc > 7 ) {
-    PrintUsage();
-    return 1;
-  }
-
-  G4String macro;
-  G4String session;
-  G4bool verboseBestUnits = true;
-#ifdef G4MULTITHREADED
-  G4int nThreads = 0;
-#endif
-  for ( G4int i=1; i<argc; i=i+2 ) {
-    if      ( G4String(argv[i]) == "-m" ) macro = argv[i+1];
-    else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
-#ifdef G4MULTITHREADED
-    else if ( G4String(argv[i]) == "-t" ) {
-      nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
-    }
-#endif
-    else if ( G4String(argv[i]) == "-vDefault" ) {
-      verboseBestUnits = false;
-      --i;  // this option is not followed with a parameter
-    }
-    else {
-      PrintUsage();
-      return 1;
-    }
-  }
-
-  // Detect interactive mode (if no macro provided) and define UI session
+  // Detect interactive mode (if no arguments) and define UI session
   //
   G4UIExecutive* ui = nullptr;
-  if ( ! macro.size() ) {
-    ui = new G4UIExecutive(argc, argv, session);
-  }
-
-  // Optionally: choose a different Random engine...
-  // G4Random::setTheEngine(new CLHEP::MTwistEngine);
+  if ( argc == 1 ) { ui = new G4UIExecutive(argc, argv); }
 
   // Use G4SteppingVerboseWithUnits
-  if ( verboseBestUnits ) {
-    G4int precision = 4;
-    G4SteppingVerbose::UseBestUnit(precision);
-  }
+  G4int precision = 4;
+  G4SteppingVerbose::UseBestUnit(precision);
 
   // Construct the default run manager
   //
   auto runManager =
     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
-#ifdef G4MULTITHREADED
-  if ( nThreads > 0 ) {
-    runManager->SetNumberOfThreads(nThreads);
-  }
-#endif
 
-  // Set mandatory initialization classes
-  //
-  auto detConstruction = new DTGeometry();
-  runManager->SetUserInitialization(detConstruction);
+  // Mandatory user initialization classes
+  runManager->SetUserInitialization(new DTGeometry());
 
   auto physicsList = new FTFP_BERT;
+  physicsList->RegisterPhysics(new G4StepLimiterPhysics());
   runManager->SetUserInitialization(physicsList);
 
-  auto actionInitialization = new DTSim::ActionInitialization();
-  runManager->SetUserInitialization(actionInitialization);
+  // User action initialization
+  runManager->SetUserInitialization(new DTSim::ActionInitialization());
 
-  // Initialize visualization
+  // Visualization manager construction
   auto visManager = new G4VisExecutive;
   // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
   // auto visManager = new G4VisExecutive("Quiet");
@@ -121,30 +66,18 @@ int main(int argc,char** argv)
   // Get the pointer to the User Interface manager
   auto UImanager = G4UImanager::GetUIpointer();
 
-  // Activate score ntuple writer
-  // The verbose level can be also set via UI commands
-  // /score/ntuple/writerVerbose level
-  // The default file type ("root") can be changed in xml, csv, hdf5
-  // scoreNtupleWriter.SetDefaultFileType("xml");
-  G4TScoreNtupleWriter<G4AnalysisManager> scoreNtupleWriter;
-  scoreNtupleWriter.SetVerboseLevel(1);
-  scoreNtupleWriter.SetNtupleMerging(true);
-    // Note: merging ntuples is available only with Root output
-    // (the default in G4TScoreNtupleWriter)
-
-  // Process macro or start UI session
-  //
-  if ( macro.size() ) {
-    // batch mode
+  if ( !ui ) {
+    // execute an argument macro file if exist
     G4String command = "/control/execute ";
-    UImanager->ApplyCommand(command+macro);
+    G4String fileName = argv[1];
+    UImanager->ApplyCommand(command+fileName);
   }
-  else  {
-    // interactive mode : define UI session
+  else {
     UImanager->ApplyCommand("/control/execute init_vis.mac");
     if (ui->IsGUI()) {
-      UImanager->ApplyCommand("/control/execute gui.mac");
+         UImanager->ApplyCommand("/control/execute gui.mac");
     }
+    // start interactive session
     ui->SessionStart();
     delete ui;
   }
@@ -155,7 +88,10 @@ int main(int argc,char** argv)
   // in the main() program !
 
   delete visManager;
+  delete physicsList;
   delete runManager;
+
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

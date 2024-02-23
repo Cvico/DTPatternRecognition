@@ -28,6 +28,7 @@
 /// \brief Implementation of the B4::RunAction class
 
 #include "RunAction.hh"
+#include "EventAction.hh"
 
 #include "G4AnalysisManager.hh"
 #include "G4Run.hh"
@@ -40,7 +41,8 @@ namespace DTSim
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::RunAction()
+RunAction::RunAction(EventAction* eventAction)
+ : fEventAction(eventAction)
 {
   // set printing event number per each event
   G4RunManager::GetRunManager()->SetPrintProgress(1);
@@ -80,11 +82,13 @@ RunAction::RunAction()
     ->CreateH2("SuperLayer3 XY","SuperLayer 3 X vs Y",           // h2 Id = 0
                50, -1000., 1000, 50, -300., 300.);
 
-  analysisManager->CreateNtuple("DTSim", "Hits");
-  analysisManager->CreateNtupleIColumn("SL1Hits");  // column Id = 0
-  analysisManager->CreateNtupleIColumn("SL2Hits");  // column Id = 1
-  analysisManager->CreateNtupleIColumn("SL3Hits");  // column Id = 2
-  analysisManager->FinishNtuple();
+  if ( fEventAction ) {
+    analysisManager->CreateNtuple("DTSim", "Hits");
+    analysisManager->CreateNtupleIColumn("SL1Hits");  // column Id = 0
+    analysisManager->CreateNtupleIColumn("SL2Hits");  // column Id = 1
+    analysisManager->CreateNtupleIColumn("SL3Hits");  // column Id = 2
+    analysisManager->FinishNtuple();
+  }
 
 
   // Set ntuple output file
@@ -101,10 +105,11 @@ void RunAction::BeginOfRunAction(const G4Run* /*run*/)
 
   // Get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->Reset();
 
   // Open an output file
   //
-  G4String fileName = "B4.root";
+  G4String fileName = "Dtsim.root";
   // Other supported output types:
   // G4String fileName = "B4.csv";
   // G4String fileName = "B4.hdf5";
@@ -129,31 +134,26 @@ void RunAction::EndOfRunAction(const G4Run* /*run*/)
       G4cout << "for the local thread " << G4endl << G4endl;
     }
 
-    G4cout << " EAbs : mean = "
-       << G4BestUnit(analysisManager->GetH1(0)->mean(), "Energy")
+    G4cout << " SL1 hits : mean = "
+       << analysisManager->GetH1(0)->mean()
        << " rms = "
-       << G4BestUnit(analysisManager->GetH1(0)->rms(),  "Energy") << G4endl;
+       << analysisManager->GetH1(0)->rms() << G4endl;
 
-    G4cout << " EGap : mean = "
-       << G4BestUnit(analysisManager->GetH1(1)->mean(), "Energy")
+    G4cout << " SL2 hits : mean = "
+       << analysisManager->GetH1(1)->mean()
        << " rms = "
-       << G4BestUnit(analysisManager->GetH1(1)->rms(),  "Energy") << G4endl;
+       << analysisManager->GetH1(1)->rms() << G4endl;
 
-    G4cout << " LAbs : mean = "
-      << G4BestUnit(analysisManager->GetH1(2)->mean(), "Length")
-      << " rms = "
-      << G4BestUnit(analysisManager->GetH1(2)->rms(),  "Length") << G4endl;
-
-    G4cout << " LGap : mean = "
-      << G4BestUnit(analysisManager->GetH1(3)->mean(), "Length")
-      << " rms = "
-      << G4BestUnit(analysisManager->GetH1(3)->rms(),  "Length") << G4endl;
+    G4cout << " SL3 hits : mean = "
+       << analysisManager->GetH1(2)->mean()
+       << " rms = "
+       << analysisManager->GetH1(2)->rms() << G4endl;
   }
 
   // save histograms & ntuple
   //
   analysisManager->Write();
-  analysisManager->CloseFile();
+  analysisManager->CloseFile(false);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

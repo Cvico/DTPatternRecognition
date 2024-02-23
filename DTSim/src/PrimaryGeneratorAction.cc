@@ -63,7 +63,11 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
+  G4cout << "Deleting PrimaryGeneratorAction" << G4endl;
+
   delete fParticleGun;
+  G4cout << "Deleting PrimaryGeneratorAction DONE" << G4endl;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

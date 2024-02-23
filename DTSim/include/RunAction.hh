@@ -27,8 +27,8 @@
 /// \file B4/B4d/include/RunAction.hh
 /// \brief Definition of the B4::RunAction class
 
-#ifndef B4RunAction_h
-#define B4RunAction_h 1
+#ifndef RunAction_h
+#define RunAction_h 1
 
 #include "G4UserRunAction.hh"
 #include "globals.hh"
@@ -55,15 +55,22 @@ namespace DTSim
 /// In EndOfRunAction(), the accumulated statistic and computed
 /// dispersion is printed.
 ///
+class EventAction;
+
 
 class RunAction : public G4UserRunAction
 {
   public:
-    RunAction();
+    RunAction(EventAction* eventAction);
+
     ~RunAction() override = default;
 
     void BeginOfRunAction(const G4Run*) override;
     void   EndOfRunAction(const G4Run*) override;
+  private: 
+    EventAction* fEventAction = nullptr;
+
+
 };
 
 }

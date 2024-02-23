@@ -87,14 +87,18 @@ const std::map<G4String,G4AttDef>* SuperLayerHit::GetAttDefs() const
       (*store)["HitType"]
         = G4AttDef("HitType","Hit Type","Physics","","G4String");
 
-      (*store)["ID"]
-        = G4AttDef("ID","ID","Physics","","G4int");
+      (*store)["LayerID"]
+        = G4AttDef("LayerID","LayerID","Physics","","G4int");
+
+      (*store)["CellID"]
+        = G4AttDef("CellID","CellID","Physics","","G4int");
 
       (*store)["Time"]
         = G4AttDef("Time","Time","Physics","G4BestUnit","G4double");
 
       (*store)["Pos"]
         = G4AttDef("Pos", "Position", "Physics","G4BestUnit","G4ThreeVector");
+
   }
 
   return store;
@@ -109,7 +113,9 @@ std::vector<G4AttValue>* SuperLayerHit::CreateAttValues() const
   values
     ->push_back(G4AttValue("HitType","SuperLayerHit",""));
   values
-    ->push_back(G4AttValue("ID",G4UIcommand::ConvertToString(fLayerID),""));
+    ->push_back(G4AttValue("LayerID",G4UIcommand::ConvertToString(fLayerID),""));
+  values
+    ->push_back(G4AttValue("CellID",G4UIcommand::ConvertToString(fCellID),""));
   values
     ->push_back(G4AttValue("Time",G4BestUnit(fTime,"Time"),""));
   values
@@ -124,7 +130,7 @@ void SuperLayerHit::Print()
 {
   G4cout << "  Layer[" << fLayerID << "] : time " << fTime/ns
   << " (nsec) --- local (x,y) " << fLocalPos.x()
-  << ", " << fLocalPos.y() << G4endl;
+  << ", " << fLocalPos.y() << " , cellno = " << fCellID << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

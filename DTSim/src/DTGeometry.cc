@@ -70,7 +70,7 @@ DTGeometry::DTGeometry()
 
 DTGeometry::~DTGeometry()
 {
-
+  G4cout << "Deleting DTGeometry" << G4endl;
 }
 
 G4VPhysicalVolume* DTGeometry::Construct()
@@ -104,7 +104,7 @@ void DTGeometry::ConstructSDandField()
   fSuperLayer2LV->SetSensitiveDetector(superlayer2);
 
   auto superlayer3 = new SuperLayerSD(SDname="/sl3");
-  sdManager->AddNewDetector(superlayer2);
+  sdManager->AddNewDetector(superlayer3);
   fSuperLayer3LV->SetSensitiveDetector(superlayer3);
 
   //

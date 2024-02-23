@@ -80,6 +80,7 @@ EventAction::EventAction()
   G4RunManager::GetRunManager()->SetPrintProgress(1);
 }
 
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::BeginOfEventAction(const G4Event*)
@@ -160,7 +161,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
   for (G4int iDet = 0; iDet < kDim; ++iDet) {
     auto hc = GetHC(event, fDriftHCID[iDet]);
     if ( ! hc ) return;
-    G4cout << "Drift Chamber " << iDet + 1 << " has " <<  hc->GetSize()  << " hits." << G4endl;
+    G4cout << "Super Layer " << iDet + 1 << " has " <<  hc->GetSize()  << " hits." << G4endl;
     for (auto layer = 0; layer < 4; ++layer) {
       for (unsigned int i = 0; i < hc->GetSize(); i++) {
         auto hit = static_cast<SuperLayerHit*>(hc->GetHit(i));
