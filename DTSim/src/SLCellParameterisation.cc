@@ -24,52 +24,41 @@
 // ********************************************************************
 //
 //
-/// \file DTSim/include/EventAction.hh
-/// \brief Definition of the DTSim::EventAction class
+/// \file DTSim/src/SLCellParameterisation.cc
+/// \brief Implementation of the DTSim::SLCellParameterisation class
 
-#ifndef DTSimEventAction_h
-#define DTSimEventAction_h 1
-
+#include "SLCellParameterisation.hh"
 #include "Constants.hh"
 
-#include "G4UserEventAction.hh"
-#include "globals.hh"
-
-#include <vector>
-#include <array>
-
-// named constants
-const G4int kH1 = 0;
-const G4int kH2 = 1;
-const G4int kDim = 3;
+#include "G4VPhysicalVolume.hh"
+#include "G4ThreeVector.hh"
+#include "G4SystemOfUnits.hh"
 
 namespace DTSim
 {
 
-/// Event action
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class EventAction : public G4UserEventAction
+SLCellParameterisation::SLCellParameterisation()
 {
-public:
-    EventAction();
-    ~EventAction() override = default;
-
-    void BeginOfEventAction(const G4Event*) override;
-    void EndOfEventAction(const G4Event*) override;
-    
-private:
-    // hit collections Ids
-    std::array<G4int, kDim> fSLHCID = { -1, -1 };
-    // histograms Ids
-    std::array<std::array<G4int, kDim>, kDim> fSLHistoID
-      {{ {{ -1, -1 }}, {{ -1, -1 }} }};
-        // std::array<T, N> is an aggregate that contains a C array.
-        // To initialize it, we need outer braces for the class itself
-        // and inner braces for the C array
-};
-
+   for (auto layer=0; layer<kNofLayers; layer++){
+        G4double zlayer = (layer - kNofLayers/2)*kCellThickness;
+        for (auto cell=0; cell<kNofCells; cell++){
+            G4int cellNo = cell + layer*kNofCells;
+            fXCell[cellNo] = (cell-kNofCells/2)*kCellWidth+(layer%2)*kCellWidth/2;
+            fZCell[cellNo] = (layer - kNofLayers/2)*kCellThickness;
+        }
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#endif
+void SLCellParameterisation::ComputeTransformation(
+       const G4int copyNo, G4VPhysicalVolume *physVol) const
+{
+  physVol->SetTranslation(G4ThreeVector(fXCell[copyNo],0,fZCell[copyNo]));
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+}

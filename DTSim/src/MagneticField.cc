@@ -24,52 +24,58 @@
 // ********************************************************************
 //
 //
-/// \file DTSim/include/EventAction.hh
-/// \brief Definition of the DTSim::EventAction class
+/// \file DTSim/src/MagneticField.cc
+/// \brief Implementation of the DTSim::MagneticField class
 
-#ifndef DTSimEventAction_h
-#define DTSimEventAction_h 1
+#include "MagneticField.hh"
 
-#include "Constants.hh"
-
-#include "G4UserEventAction.hh"
+#include "G4GenericMessenger.hh"
+#include "G4SystemOfUnits.hh"
 #include "globals.hh"
-
-#include <vector>
-#include <array>
-
-// named constants
-const G4int kH1 = 0;
-const G4int kH2 = 1;
-const G4int kDim = 3;
 
 namespace DTSim
 {
 
-/// Event action
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class EventAction : public G4UserEventAction
+MagneticField::MagneticField()
 {
-public:
-    EventAction();
-    ~EventAction() override = default;
-
-    void BeginOfEventAction(const G4Event*) override;
-    void EndOfEventAction(const G4Event*) override;
-    
-private:
-    // hit collections Ids
-    std::array<G4int, kDim> fSLHCID = { -1, -1 };
-    // histograms Ids
-    std::array<std::array<G4int, kDim>, kDim> fSLHistoID
-      {{ {{ -1, -1 }}, {{ -1, -1 }} }};
-        // std::array<T, N> is an aggregate that contains a C array.
-        // To initialize it, we need outer braces for the class itself
-        // and inner braces for the C array
-};
-
+  // define commands for this class
+  DefineCommands();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#endif
+MagneticField::~MagneticField()
+{
+  delete fMessenger;
+}
+
+void MagneticField::GetFieldValue(const G4double [4],double *bField) const
+{
+  bField[0] = 0.;
+  bField[1] = fBy;
+  bField[2] = 0.;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void MagneticField::DefineCommands()
+{
+  // Define /DTSim/field command directory using generic messenger class
+  fMessenger = new G4GenericMessenger(this,
+                                      "/DTSim/field/",
+                                      "Field control");
+
+  // fieldValue command
+  auto& valueCmd
+    = fMessenger->DeclareMethodWithUnit("value","tesla",
+                                &MagneticField::SetField,
+                                "Set field strength.");
+  valueCmd.SetParameterName("field", true);
+  valueCmd.SetDefaultValue("1.");
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+}

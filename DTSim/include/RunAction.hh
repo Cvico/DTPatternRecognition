@@ -24,11 +24,11 @@
 // ********************************************************************
 //
 //
-/// \file B4/B4d/include/RunAction.hh
-/// \brief Definition of the B4::RunAction class
+/// \file DTSim/include/RunAction.hh
+/// \brief Definition of the DTSim::RunAction class
 
-#ifndef RunAction_h
-#define RunAction_h 1
+#ifndef DTSimRunAction_h
+#define DTSimRunAction_h 1
 
 #include "G4UserRunAction.hh"
 #include "globals.hh"
@@ -38,39 +38,21 @@ class G4Run;
 namespace DTSim
 {
 
-/// Run action class
-///
-/// It accumulates statistic and computes dispersion of the energy deposit
-/// and track lengths of charged particles with use of analysis tools:
-/// H1D histograms are created in BeginOfRunAction() for the following
-/// physics quantities:
-/// - Edep in absorber
-/// - Edep in gap
-/// - Track length in absorber
-/// - Track length in gap
-/// The same values are also saved in the ntuple.
-/// The histograms and ntuple are saved in the output file in a format
-/// according to a specified file extension.
-///
-/// In EndOfRunAction(), the accumulated statistic and computed
-/// dispersion is printed.
-///
 class EventAction;
 
+/// Run action class
 
 class RunAction : public G4UserRunAction
 {
   public:
     RunAction(EventAction* eventAction);
-
     ~RunAction() override = default;
 
     void BeginOfRunAction(const G4Run*) override;
     void   EndOfRunAction(const G4Run*) override;
-  private: 
+
+  private:
     EventAction* fEventAction = nullptr;
-
-
 };
 
 }

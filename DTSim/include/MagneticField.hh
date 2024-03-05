@@ -24,48 +24,40 @@
 // ********************************************************************
 //
 //
-/// \file DTSim/include/EventAction.hh
-/// \brief Definition of the DTSim::EventAction class
+/// \file DTSim/include/MagneticField.hh
+/// \brief Definition of the DTSim::MagneticField class
 
-#ifndef DTSimEventAction_h
-#define DTSimEventAction_h 1
+#ifndef DTSimMagneticField_H
+#define DTSimMagneticField_H 1
 
-#include "Constants.hh"
-
-#include "G4UserEventAction.hh"
 #include "globals.hh"
+#include "G4MagneticField.hh"
 
-#include <vector>
-#include <array>
+#include <CLHEP/Units/SystemOfUnits.h>
 
-// named constants
-const G4int kH1 = 0;
-const G4int kH2 = 1;
-const G4int kDim = 3;
+class G4GenericMessenger;
 
 namespace DTSim
 {
 
-/// Event action
+/// Magnetic field
 
-class EventAction : public G4UserEventAction
+class MagneticField : public G4MagneticField
 {
-public:
-    EventAction();
-    ~EventAction() override = default;
+  public:
+    MagneticField();
+    ~MagneticField() override;
 
-    void BeginOfEventAction(const G4Event*) override;
-    void EndOfEventAction(const G4Event*) override;
-    
-private:
-    // hit collections Ids
-    std::array<G4int, kDim> fSLHCID = { -1, -1 };
-    // histograms Ids
-    std::array<std::array<G4int, kDim>, kDim> fSLHistoID
-      {{ {{ -1, -1 }}, {{ -1, -1 }} }};
-        // std::array<T, N> is an aggregate that contains a C array.
-        // To initialize it, we need outer braces for the class itself
-        // and inner braces for the C array
+    void GetFieldValue(const G4double point[4],double* bField ) const override;
+
+    void SetField(G4double val) { fBy = val; }
+    G4double GetField() const { return fBy; }
+
+  private:
+    void DefineCommands();
+
+    G4GenericMessenger* fMessenger = nullptr;
+    G4double fBy = 1.0*CLHEP::tesla;
 };
 
 }

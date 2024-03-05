@@ -24,48 +24,53 @@
 // ********************************************************************
 //
 //
-/// \file DTSim/include/EventAction.hh
-/// \brief Definition of the DTSim::EventAction class
+/// \file DTSim/include/DetectorConstruction.hh
+/// \brief Definition of the DTSim::DetectorConstruction class
 
-#ifndef DTSimEventAction_h
-#define DTSimEventAction_h 1
+#ifndef DTSimDetectorConstruction_h
+#define DTSimDetectorConstruction_h 1
 
-#include "Constants.hh"
-
-#include "G4UserEventAction.hh"
 #include "globals.hh"
+#include "G4VUserDetectorConstruction.hh"
+#include "G4RotationMatrix.hh"
+#include "G4FieldManager.hh"
 
 #include <vector>
-#include <array>
 
-// named constants
-const G4int kH1 = 0;
-const G4int kH2 = 1;
-const G4int kDim = 3;
+class G4VPhysicalVolume;
+class G4Material;
+class G4VSensitiveDetector;
+class G4GenericMessenger;
 
 namespace DTSim
 {
 
-/// Event action
+class MagneticField;
 
-class EventAction : public G4UserEventAction
+/// Detector construction
+
+class DetectorConstruction : public G4VUserDetectorConstruction
 {
-public:
-    EventAction();
-    ~EventAction() override = default;
+  public:
+    DetectorConstruction();
+    ~DetectorConstruction() override;
 
-    void BeginOfEventAction(const G4Event*) override;
-    void EndOfEventAction(const G4Event*) override;
+    G4VPhysicalVolume* Construct() override;
+    void ConstructSDandField() override;
+
+    void ConstructMaterials();
+
+  private:
     
-private:
-    // hit collections Ids
-    std::array<G4int, kDim> fSLHCID = { -1, -1 };
-    // histograms Ids
-    std::array<std::array<G4int, kDim>, kDim> fSLHistoID
-      {{ {{ -1, -1 }}, {{ -1, -1 }} }};
-        // std::array<T, N> is an aggregate that contains a C array.
-        // To initialize it, we need outer braces for the class itself
-        // and inner braces for the C array
+    static G4ThreadLocal MagneticField* fMagneticField;
+    static G4ThreadLocal G4FieldManager* fFieldMgr;
+
+    G4GenericMessenger* fMessenger = nullptr;
+
+    G4LogicalVolume* fSuperLayer1Logical = nullptr;
+    G4LogicalVolume* fSuperLayer2Logical = nullptr;
+    G4LogicalVolume* fSuperLayer3Logical = nullptr;
+    G4LogicalVolume* fMagneticLogical = nullptr;
 };
 
 }

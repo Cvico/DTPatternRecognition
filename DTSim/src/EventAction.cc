@@ -24,11 +24,12 @@
 // ********************************************************************
 //
 //
-/// \file B5/src/EventAction.cc
-/// \brief Implementation of the B5::EventAction class
+/// \file DTSim/src/EventAction.cc
+/// \brief Implementation of the DTSim::EventAction class
 
 #include "EventAction.hh"
 #include "SuperLayerHit.hh"
+#include "Constants.hh"
 
 #include "G4Event.hh"
 #include "G4RunManager.hh"
@@ -80,7 +81,6 @@ EventAction::EventAction()
   G4RunManager::GetRunManager()->SetPrintProgress(1);
 }
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::BeginOfEventAction(const G4Event*)
@@ -88,25 +88,25 @@ void EventAction::BeginOfEventAction(const G4Event*)
   // Find hit collections and histogram Ids by names (just once)
   // and save them in the data members of this class
 
-  if (fDriftHCID[0] == -1) {
+  if (fSLHCID[0] == -1) {
     auto sdManager = G4SDManager::GetSDMpointer();
     auto analysisManager = G4AnalysisManager::Instance();
 
     // hits collections names
-    array<G4String, kDim> dHCName
-      = {{ "sl1/SuperLayerColl", "sl2/SuperLayerColl" , "sl3/SuperLayerColl" }};
+      array<G4String, kDim> sHCName
+      = {{ "SuperLayer1/SuperLayerColl", "SuperLayer2/SuperLayerColl", "SuperLayer3/SuperLayerColl" }};
 
     // histograms names
     array<array<G4String, kDim>, kDim> histoName
-      = {{ {{ "SuperLayer1", "SuperLayer2", "SuperLayer3" }}, {{ "SuperLayer1 XY", "SuperLayer2 XY", "SuperLayer3 XY" }} }};
+      = {{ {{ "SL1", "SL2", "SL3" }}, {{ "SL1 XY", "SL2 XY", "SL3 XY" }} }};
 
     for (G4int iDet = 0; iDet < kDim; ++iDet) {
       // hit collections IDs
-      fDriftHCID[iDet] = sdManager->GetCollectionID(dHCName[iDet]);
+      fSLHCID[iDet] = sdManager->GetCollectionID(sHCName[iDet]);
 
       // histograms IDs
-      fDriftHistoID[kH1][iDet] = analysisManager->GetH1Id(histoName[kH1][iDet]);
-      fDriftHistoID[kH2][iDet] = analysisManager->GetH2Id(histoName[kH2][iDet]);
+      fSLHistoID[kH1][iDet] = analysisManager->GetH1Id(histoName[kH1][iDet]);
+      fSLHistoID[kH2][iDet] = analysisManager->GetH2Id(histoName[kH2][iDet]);
     }
   }
 }
@@ -124,20 +124,25 @@ void EventAction::EndOfEventAction(const G4Event* event)
 
   // Drift chambers hits
   for (G4int iDet = 0; iDet < kDim; ++iDet) {
-    auto hc = GetHC(event, fDriftHCID[iDet]);
+    auto hc = GetHC(event, fSLHCID[iDet]);
     if ( ! hc ) return;
 
     auto nhit = hc->GetSize();
-    analysisManager->FillH1(fDriftHistoID[kH1][iDet], nhit );
-    // columns 0, 1
-    analysisManager->FillNtupleIColumn(iDet, nhit);
+    analysisManager->FillH1(fSLHistoID[kH1][iDet], nhit );
+
+    // columns 0, 1, 2
+    auto column = iDet * 3;
+    analysisManager->FillNtupleIColumn(column,   nhit);
 
     for (unsigned long i = 0; i < nhit; ++i) {
       auto hit = static_cast<SuperLayerHit*>(hc->GetHit(i));
       auto localPos = hit->GetLocalPos();
-      analysisManager->FillH2(fDriftHistoID[kH2][iDet], localPos.x(), localPos.y());
+      analysisManager->FillH2(fSLHistoID[kH2][iDet], localPos.x(), localPos.y());
+      analysisManager->FillNtupleDColumn(column+1, hit->GetLayerID());
+      analysisManager->FillNtupleDColumn(column+2, hit->GetCellID());
     }
   }
+
 
 
   analysisManager->AddNtupleRow();
@@ -145,7 +150,6 @@ void EventAction::EndOfEventAction(const G4Event* event)
   //
   // Print diagnostics
   //
-
   auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
   if ( printModulo == 0 || event->GetEventID() % printModulo != 0) return;
 
@@ -156,17 +160,14 @@ void EventAction::EndOfEventAction(const G4Event* event)
     << primary->GetG4code()->GetParticleName()
     << " " << primary->GetMomentum() << G4endl;
 
-
   // Drift chambers
   for (G4int iDet = 0; iDet < kDim; ++iDet) {
-    auto hc = GetHC(event, fDriftHCID[iDet]);
+    auto hc = GetHC(event, fSLHCID[iDet]);
     if ( ! hc ) return;
     G4cout << "Super Layer " << iDet + 1 << " has " <<  hc->GetSize()  << " hits." << G4endl;
-    for (auto layer = 0; layer < 4; ++layer) {
-      for (unsigned int i = 0; i < hc->GetSize(); i++) {
-        auto hit = static_cast<SuperLayerHit*>(hc->GetHit(i));
-        if (hit->GetLayerID() == layer) hit->Print();
-      }
+    for (unsigned int i = 0; i < hc->GetSize(); i++) {
+      auto hit = static_cast<SuperLayerHit*>(hc->GetHit(i));
+      hit->Print();
     }
   }
 

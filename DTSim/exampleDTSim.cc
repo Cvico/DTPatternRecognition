@@ -8,26 +8,36 @@
 // * LICENSE and available at  http://cern.ch/geant4/license .  These *
 // * include a list of copyright holders.                             *
 // *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.  Please see the license in the file  LICENSE  and URL above *
+// * for the full disclaimer and the limitation of liability.         *
+// *                                                                  *
+// * This  code  implementation is the result of  the  scientific and *
+// * technical work of the GEANT4 collaboration.                      *
+// * By using,  copying,  modifying or  distributing the software (or *
+// * any work based  on the software)  you  agree  to acknowledge its *
+// * use  in  resulting  scientific  publications,  and indicate your *
+// * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
 //
-/// \file dtsim.cc
-/// \brief Main program 
+/// \file exampleDTSim.cc
+/// \brief Main program of the basic DTSim example
 
-#include "DTGeometry.hh"
+#include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
 
-#include "G4AnalysisManager.hh"
 #include "G4RunManagerFactory.hh"
 #include "G4SteppingVerbose.hh"
-#include "G4TScoreNtupleWriter.hh"
-#include "G4StepLimiterPhysics.hh"
-#include "G4UIcommand.hh"
 #include "G4UImanager.hh"
-#include "G4UIExecutive.hh"
-#include "G4VisExecutive.hh"
 #include "FTFP_BERT.hh"
-#include "Randomize.hh"
+#include "G4StepLimiterPhysics.hh"
+
+#include "G4VisExecutive.hh"
+#include "G4UIExecutive.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -48,7 +58,7 @@ int main(int argc,char** argv)
     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 
   // Mandatory user initialization classes
-  runManager->SetUserInitialization(new DTGeometry());
+  runManager->SetUserInitialization(new DTSim::DetectorConstruction);
 
   auto physicsList = new FTFP_BERT;
   physicsList->RegisterPhysics(new G4StepLimiterPhysics());
@@ -88,10 +98,7 @@ int main(int argc,char** argv)
   // in the main() program !
 
   delete visManager;
-  delete physicsList;
   delete runManager;
-
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

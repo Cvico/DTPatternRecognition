@@ -24,15 +24,17 @@
 // ********************************************************************
 //
 //
-/// \file include/ActionInitialization.hh
-/// \brief Definition of the ActionInitialization class
+/// \file DTSim/include/ActionInitialization.hh
+/// \brief Definition of the DTSim::ActionInitialization class
 
-#ifndef ActionInitialization_h
-#define ActionInitialization_h 1
+#ifndef DTSimActionInitialization_h
+#define DTSimActionInitialization_h 1
 
 #include "G4VUserActionInitialization.hh"
 
-namespace DTSim {
+namespace DTSim
+{
+
 /// Action initialization class.
 
 class ActionInitialization : public G4VUserActionInitialization
@@ -47,6 +49,6 @@ class ActionInitialization : public G4VUserActionInitialization
 
 }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 #endif
-
-

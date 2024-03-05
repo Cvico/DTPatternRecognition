@@ -24,11 +24,11 @@
 // ********************************************************************
 //
 //
-/// \file B5/include/SuperLayerSD.hh
-/// \brief Definition of the B5::SuperLayerSD class
+/// \file DTSim/include/SuperLayerSD.hh
+/// \brief Definition of the DTSim::SuperLayerSD class
 
-#ifndef B5SuperLayerSD_h
-#define B5SuperLayerSD_h 1
+#ifndef DTSimSuperLayerSD_h
+#define DTSimSuperLayerSD_h 1
 
 #include "G4VSensitiveDetector.hh"
 
@@ -41,7 +41,7 @@ class G4TouchableHistory;
 namespace DTSim
 {
 
-/// Drift chamber sensitive detector
+/// EM calorimeter sensitive detector
 
 class SuperLayerSD : public G4VSensitiveDetector
 {
@@ -50,9 +50,12 @@ class SuperLayerSD : public G4VSensitiveDetector
     ~SuperLayerSD() override = default;
 
     void Initialize(G4HCofThisEvent*HCE) override;
-    G4bool ProcessHits(G4Step* aStep, G4TouchableHistory* ROhist) override;
-
+    G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist) override;
+    
   private:
+    G4int GetCellID(G4int copyNo) const;
+    G4int GetLayerID(G4int copyNo) const;
+
     SuperLayerHitsCollection* fHitsCollection = nullptr;
     G4int fHCID = -1;
 };

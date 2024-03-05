@@ -24,14 +24,13 @@
 // ********************************************************************
 //
 //
-/// \file src/ActionInitialization.cc
-/// \brief Implementation of the B4d::ActionInitialization class
+/// \file DTSim/src/ActionInitialization.cc
+/// \brief Implementation of the DTSim::ActionInitialization class
 
 #include "ActionInitialization.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"
-
 
 namespace DTSim
 {
@@ -42,7 +41,6 @@ void ActionInitialization::BuildForMaster() const
 {
   auto eventAction = new EventAction;
   SetUserAction(new RunAction(eventAction));
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -55,7 +53,6 @@ void ActionInitialization::Build() const
   SetUserAction(eventAction);
 
   SetUserAction(new RunAction(eventAction));
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

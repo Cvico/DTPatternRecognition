@@ -24,8 +24,8 @@
 // ********************************************************************
 //
 //
-/// \file B5/src/SuperLayerHit.cc
-/// \brief Implementation of the B5::SuperLayerHit class
+/// \file DTSim/src/SuperLayerHit.cc
+/// \brief Implementation of the DTSim::SuperLayerHit class
 
 #include "SuperLayerHit.hh"
 
@@ -50,15 +50,15 @@ G4ThreadLocal G4Allocator<SuperLayerHit>* SuperLayerHitAllocator;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-SuperLayerHit::SuperLayerHit(G4int layerID, G4int cellID)
-: fLayerID(layerID), fCellID(cellID)
+SuperLayerHit::SuperLayerHit(G4int cellID, G4int layerID)
+: fCellID(cellID), fLayerID(layerID)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool SuperLayerHit::operator==(const SuperLayerHit &/*right*/) const
+G4bool SuperLayerHit::operator==(const SuperLayerHit &right) const
 {
-  return false;
+  return (fCellID==right.fCellID && fLayerID==right.fLayerID);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -66,14 +66,16 @@ G4bool SuperLayerHit::operator==(const SuperLayerHit &/*right*/) const
 void SuperLayerHit::Draw()
 {
   auto visManager = G4VVisManager::GetConcreteInstance();
+
   if (! visManager) return;
 
   G4Circle circle(fWorldPos);
   circle.SetScreenSize(2);
   circle.SetFillStyle(G4Circle::filled);
-  G4VisAttributes attribs(G4Colour::Yellow());
+  G4VisAttributes attribs(G4Colour::Red());
   circle.SetVisAttributes(attribs);
   visManager->Draw(circle);
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -87,20 +89,19 @@ const std::map<G4String,G4AttDef>* SuperLayerHit::GetAttDefs() const
       (*store)["HitType"]
         = G4AttDef("HitType","Hit Type","Physics","","G4String");
 
-      (*store)["LayerID"]
-        = G4AttDef("LayerID","LayerID","Physics","","G4int");
-
-      (*store)["CellID"]
-        = G4AttDef("CellID","CellID","Physics","","G4int");
+      (*store)["ID"]
+        = G4AttDef("ID","ID","Physics","","G4int");
 
       (*store)["Time"]
         = G4AttDef("Time","Time","Physics","G4BestUnit","G4double");
 
       (*store)["Pos"]
-        = G4AttDef("Pos", "Position", "Physics","G4BestUnit","G4ThreeVector");
+        = G4AttDef("Pos", "Position", "Physics","G4BestUnit",
+                   "G4ThreeVector");
 
+      (*store)["LVol"]
+        = G4AttDef("LVol","Logical Volume","Physics","","G4String");
   }
-
   return store;
 }
 
@@ -113,13 +114,16 @@ std::vector<G4AttValue>* SuperLayerHit::CreateAttValues() const
   values
     ->push_back(G4AttValue("HitType","SuperLayerHit",""));
   values
-    ->push_back(G4AttValue("LayerID",G4UIcommand::ConvertToString(fLayerID),""));
-  values
-    ->push_back(G4AttValue("CellID",G4UIcommand::ConvertToString(fCellID),""));
+    ->push_back(G4AttValue("ID",G4UIcommand::ConvertToString(fCellID),""));
   values
     ->push_back(G4AttValue("Time",G4BestUnit(fTime,"Time"),""));
   values
     ->push_back(G4AttValue("Pos",G4BestUnit(fWorldPos,"Length"),""));
+
+  if (fPLogV)
+    values->push_back(G4AttValue("LVol",fPLogV->GetName(),""));
+  else
+    values->push_back(G4AttValue("LVol"," ",""));
 
   return values;
 }
@@ -128,9 +132,9 @@ std::vector<G4AttValue>* SuperLayerHit::CreateAttValues() const
 
 void SuperLayerHit::Print()
 {
-  G4cout << "  Layer[" << fLayerID << "] : time " << fTime/ns
+  G4cout << "  Layer[" << fLayerID << "," << fCellID << "] : time " << fTime/ns
   << " (nsec) --- local (x,y) " << fLocalPos.x()
-  << ", " << fLocalPos.y() << " , cellno = " << fCellID << G4endl;
+  << ", " << fLocalPos.y() << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

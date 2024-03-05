@@ -24,38 +24,68 @@
 // ********************************************************************
 //
 //
-/// \file B4/B4d/include/PrimaryGeneratorAction.hh
-/// \brief Definition of the PrimaryGeneratorAction class
+/// \file DTSim/include/PrimaryGeneratorAction.hh
+/// \brief Definition of the DTSim::PrimaryGeneratorAction class
 
-#ifndef B4PrimaryGeneratorAction_h
-#define B4PrimaryGeneratorAction_h 1
+#ifndef DTSimPrimaryGeneratorAction_h
+#define DTSimPrimaryGeneratorAction_h 1
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "globals.hh"
 
+#include <CLHEP/Units/SystemOfUnits.h>
+
 class G4ParticleGun;
+class G4GenericMessenger;
 class G4Event;
+class G4ParticleDefinition;
 
 namespace DTSim
 {
 
-/// The primary generator action class with particle gum.
+/// Primary generator
 ///
-/// It defines a single particle which hits the calorimeter
-/// perpendicular to the input face. The type of the particle
-/// can be changed via the G4 build-in commands of G4ParticleGun class
-/// (see the macros provided with this example).
+/// A single particle is generated.
+/// User can select
+/// - the initial momentum and angle
+/// - the momentum and angle spreads
+/// - random selection of a particle type from proton, kaon+, pi+, muon+, e+
+
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
-public:
-  PrimaryGeneratorAction();
-  ~PrimaryGeneratorAction() override;
+  public:
+    PrimaryGeneratorAction();
+    ~PrimaryGeneratorAction() override;
 
-  void GeneratePrimaries(G4Event* event) override;
+    void GeneratePrimaries(G4Event*) override;
 
-private:
-  G4ParticleGun* fParticleGun = nullptr; // G4 particle gun
+    void SetMomentum(G4double val) { fMomentum = val; }
+    G4double GetMomentum() const { return fMomentum; }
+
+    void SetSigmaMomentum(G4double val) { fSigmaMomentum = val; }
+    G4double GetSigmaMomentum() const { return fSigmaMomentum; }
+
+    void SetSigmaAngle(G4double val) { fSigmaAngle = val; }
+    G4double GetSigmaAngle() const { return fSigmaAngle; }
+
+    void SetRandomize(G4bool val) { fRandomizePrimary = val; }
+    G4bool GetRandomize() const { return fRandomizePrimary; }
+
+  private:
+    void DefineCommands();
+
+    G4ParticleGun* fParticleGun = nullptr;
+    G4GenericMessenger* fMessenger = nullptr;
+    G4ParticleDefinition* fPositron = nullptr;
+    G4ParticleDefinition* fMuon = nullptr;
+    G4ParticleDefinition* fPion = nullptr;
+    G4ParticleDefinition* fKaon = nullptr;
+    G4ParticleDefinition* fProton = nullptr;
+    G4double fMomentum = 1000. * CLHEP::MeV;
+    G4double fSigmaMomentum = 50. * CLHEP::MeV;
+    G4double fSigmaAngle = 2. * CLHEP::deg;
+    G4bool fRandomizePrimary = true;
 };
 
 }

@@ -1,4 +1,4 @@
-  //
+//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -24,11 +24,11 @@
 // ********************************************************************
 //
 //
-/// \file B5/include/DriftChamberHit.hh
-/// \brief Definition of the B5::DriftChamberHit class
+/// \file DTSim/include/SuperLayerHit.hh
+/// \brief Definition of the DTSim::SuperLayerHit class
 
-#ifndef B5DriftChamberHit_h
-#define B5DriftChamberHit_h 1
+#ifndef DTSimSuperLayerHit_h
+#define DTSimSuperLayerHit_h 1
 
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
@@ -44,18 +44,18 @@ class G4AttValue;
 namespace DTSim
 {
 
-/// Drift chamber hit
+/// EM Calorimeter hit
 ///
 /// It records:
-/// - the layer ID
-/// - the particle time
-/// - the particle local and global positions
+/// - the cell ID
+/// - the energy deposit
+/// - the cell logical volume, its position and rotation
 
 class SuperLayerHit : public G4VHit
 {
   public:
     SuperLayerHit() = default;
-    SuperLayerHit(G4int layerID, G4int cellID);
+    SuperLayerHit(G4int cellID, G4int layerID);
     SuperLayerHit(const SuperLayerHit &right) = default;
     ~SuperLayerHit() override = default;
 
@@ -70,11 +70,11 @@ class SuperLayerHit : public G4VHit
     std::vector<G4AttValue>* CreateAttValues() const override;
     void Print() override;
 
+    void SetCellID(G4int z) { fCellID = z; }
+    G4int GetCellID() const { return fCellID; }
+
     void SetLayerID(G4int z) { fLayerID = z; }
     G4int GetLayerID() const { return fLayerID; }
-
-    void SetCellID(G4int i) { fCellID = i; }
-    G4int GetCellID() const { return fCellID; }
 
     void SetTime(G4double t) { fTime = t; }
     G4double GetTime() const { return fTime; }
@@ -85,12 +85,17 @@ class SuperLayerHit : public G4VHit
     void SetWorldPos(G4ThreeVector xyz) { fWorldPos = xyz; }
     G4ThreeVector GetWorldPos() const { return fWorldPos; }
 
+    void SetLogV(G4LogicalVolume* val) { fPLogV = val; }
+    const G4LogicalVolume* GetLogV() const { return fPLogV; }
+
   private:
-    G4int fLayerID = -1;
+
     G4int fCellID = -1;
+    G4int fLayerID = -1;
     G4double fTime = 0.;
     G4ThreeVector fLocalPos;
     G4ThreeVector fWorldPos;
+    const G4LogicalVolume* fPLogV = nullptr;
 };
 
 using SuperLayerHitsCollection = G4THitsCollection<SuperLayerHit>;

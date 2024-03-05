@@ -1,5 +1,5 @@
-# Macro file for the initialization of example B4
-# in interactive session
+# Macro file for the initialization phase of example DTSim
+# when running in interactive mode with visualization
 #
 # Set some default verbose
 #

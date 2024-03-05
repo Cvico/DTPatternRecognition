@@ -24,52 +24,25 @@
 // ********************************************************************
 //
 //
-/// \file DTSim/include/EventAction.hh
-/// \brief Definition of the DTSim::EventAction class
+/// \file DTSim/include/Constants.hh
+/// \brief Definition of DTSim example constants.
 
-#ifndef DTSimEventAction_h
-#define DTSimEventAction_h 1
+#ifndef DTSimConstants_h
+#define DTSimConstants_h 1
 
-#include "Constants.hh"
-
-#include "G4UserEventAction.hh"
 #include "globals.hh"
-
-#include <vector>
-#include <array>
-
-// named constants
-const G4int kH1 = 0;
-const G4int kH2 = 1;
-const G4int kDim = 3;
+#include "G4SystemOfUnits.hh"
 
 namespace DTSim
 {
-
-/// Event action
-
-class EventAction : public G4UserEventAction
-{
-public:
-    EventAction();
-    ~EventAction() override = default;
-
-    void BeginOfEventAction(const G4Event*) override;
-    void EndOfEventAction(const G4Event*) override;
-    
-private:
-    // hit collections Ids
-    std::array<G4int, kDim> fSLHCID = { -1, -1 };
-    // histograms Ids
-    std::array<std::array<G4int, kDim>, kDim> fSLHistoID
-      {{ {{ -1, -1 }}, {{ -1, -1 }} }};
-        // std::array<T, N> is an aggregate that contains a C array.
-        // To initialize it, we need outer braces for the class itself
-        // and inner braces for the C array
-};
-
+  constexpr G4int     kNofLayers = 4;
+  constexpr G4int     kNofCells = 50;
+  constexpr G4int     kNoOfCellsInSL  = kNofLayers * kNofCells;
+  constexpr G4int     kNofSuperLayers = 3; 
+  constexpr G4double  kCellThickness = 13.*mm;
+  constexpr G4double  kCellWidth     = 42.*mm;
+  constexpr G4double  kGapThickness  = 23.5*cm;
+  constexpr G4double  kYokeThickness = 29*cm;  // The other flavour is 63cm
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif

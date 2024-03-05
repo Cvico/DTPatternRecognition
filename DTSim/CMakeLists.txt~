@@ -46,6 +46,7 @@ set(DTSim_SCRIPTS
   exampleDTSim.out
   icons.mac
   gui.mac
+  run.png
   init_vis.mac
   run1.mac
   run2.mac

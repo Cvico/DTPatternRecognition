@@ -24,48 +24,39 @@
 // ********************************************************************
 //
 //
-/// \file DTSim/include/EventAction.hh
-/// \brief Definition of the DTSim::EventAction class
+/// \file DTSim/include/CellParameterisation.hh
+/// \brief Definition of the DTSim::CellParameterisation class
 
-#ifndef DTSimEventAction_h
-#define DTSimEventAction_h 1
+#ifndef DTSimSLCellParameterization_H
+#define DTSimSLCellParameterization_H 1
 
 #include "Constants.hh"
 
-#include "G4UserEventAction.hh"
 #include "globals.hh"
+#include "G4VPVParameterisation.hh"
 
-#include <vector>
 #include <array>
 
-// named constants
-const G4int kH1 = 0;
-const G4int kH2 = 1;
-const G4int kDim = 3;
+class G4VPhysicalVolume;
 
 namespace DTSim
 {
 
-/// Event action
+/// EM Calorimeter cell parameterisation
 
-class EventAction : public G4UserEventAction
+class SLCellParameterisation : public G4VPVParameterisation
 {
-public:
-    EventAction();
-    ~EventAction() override = default;
+  public:
+    SLCellParameterisation();
+    ~SLCellParameterisation() override = default;
 
-    void BeginOfEventAction(const G4Event*) override;
-    void EndOfEventAction(const G4Event*) override;
+    void ComputeTransformation(
+                   const G4int copyNo,G4VPhysicalVolume *physVol) const override;
+
+  private:
     
-private:
-    // hit collections Ids
-    std::array<G4int, kDim> fSLHCID = { -1, -1 };
-    // histograms Ids
-    std::array<std::array<G4int, kDim>, kDim> fSLHistoID
-      {{ {{ -1, -1 }}, {{ -1, -1 }} }};
-        // std::array<T, N> is an aggregate that contains a C array.
-        // To initialize it, we need outer braces for the class itself
-        // and inner braces for the C array
+    std::array<G4double, kNoOfCellsInSL> fXCell;
+    std::array<G4double, kNoOfCellsInSL> fZCell;
 };
 
 }
