@@ -81,27 +81,32 @@ analysisManager
   if ( fEventAction ) {
     analysisManager->CreateNtuple("DTSim", "Hits");
 
-    analysisManager->CreateNtupleIColumn("SL1HitN");        // column Id = 0
-    analysisManager->CreateNtupleIColumn("SL1Hit_LayerNo"); // column Id = 1
-    analysisManager->CreateNtupleIColumn("SL1Hit_CellNo");  // column Id = 2
-    analysisManager->CreateNtupleDColumn("SL1Hit_PosX");    // column Id = 3
-    analysisManager->CreateNtupleDColumn("SL1Hit_PosY");    // column Id = 4
-    analysisManager->CreateNtupleDColumn("SL1Hit_Time");    // column Id = 5
+    analysisManager->CreateNtupleIColumn("EventNo");     // column Id = 0
+    
+    analysisManager->CreateNtupleIColumn("SLHit_NHits"); // column Id = 1
+    analysisManager->CreateNtupleIColumn("SLHit_SL");    // column Id = 2    
+    analysisManager->CreateNtupleIColumn("SLHit_Layer"); // column Id = 3
+    analysisManager->CreateNtupleIColumn("SLHit_Cell");  // column Id = 4
+    analysisManager->CreateNtupleDColumn("SLHit_PosX");  // column Id = 5
+    analysisManager->CreateNtupleDColumn("SLHit_PosY");  // column Id = 6
+    analysisManager->CreateNtupleDColumn("SLHit_Time");  // column Id = 7
 
-    analysisManager->CreateNtupleIColumn("SL2HitN");        // column Id = 6
-    analysisManager->CreateNtupleIColumn("SL2Hit_LayerNo"); // column Id = 7
-    analysisManager->CreateNtupleIColumn("SL2Hit_CellNo");  // column Id = 8
-    analysisManager->CreateNtupleDColumn("SL2Hit_PosX");    // column Id = 9
-    analysisManager->CreateNtupleDColumn("SL2Hit_PosY");    // column Id = 10
-    analysisManager->CreateNtupleDColumn("SL2Hit_Time");    // column Id = 11
+    /*
+    analysisManager->CreateNtupleIColumn("SL2HitN");        // column Id = 7
+    analysisManager->CreateNtupleIColumn("SL2Hit_LayerNo"); // column Id = 8
+    analysisManager->CreateNtupleIColumn("SL2Hit_CellNo");  // column Id = 9
+    analysisManager->CreateNtupleDColumn("SL2Hit_PosX");    // column Id = 10
+    analysisManager->CreateNtupleDColumn("SL2Hit_PosY");    // column Id = 11
+    analysisManager->CreateNtupleDColumn("SL2Hit_Time");    // column Id = 12
 
-    analysisManager->CreateNtupleIColumn("SL3HitN");        // column Id = 11
-    analysisManager->CreateNtupleIColumn("SL3Hit_LayerNo"); // column Id = 12
-    analysisManager->CreateNtupleIColumn("SL3Hit_CellNo");  // column Id = 13
-    analysisManager->CreateNtupleDColumn("SL3Hit_PosX");    // column Id = 14
-    analysisManager->CreateNtupleDColumn("SL3Hit_PosY");    // column Id = 15
-    analysisManager->CreateNtupleDColumn("SL3Hit_Time");    // column Id = 16
-
+    analysisManager->CreateNtupleIColumn("SL3HitN");        // column Id = 13
+    analysisManager->CreateNtupleIColumn("SL3Hit_LayerNo"); // column Id = 14
+    analysisManager->CreateNtupleIColumn("SL3Hit_CellNo");  // column Id = 15
+    analysisManager->CreateNtupleDColumn("SL3Hit_PosX");    // column Id = 16
+    analysisManager->CreateNtupleDColumn("SL3Hit_PosY");    // column Id = 17
+    analysisManager->CreateNtupleDColumn("SL3Hit_Time");    // column Id = 18
+    */
+    
     analysisManager->FinishNtuple();
   }
 

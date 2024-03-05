@@ -121,6 +121,8 @@ void EventAction::EndOfEventAction(const G4Event* event)
 
   // Get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
+  
+
 
   // Drift chambers hits
   for (G4int iDet = 0; iDet < kDim; ++iDet) {
@@ -131,25 +133,25 @@ void EventAction::EndOfEventAction(const G4Event* event)
     analysisManager->FillH1(fSLHistoID[kH1][iDet], nhit);
 
     // columns 0, 1, 2
-    auto column = iDet * kNofColumns;
-
-
     for (unsigned long i = 0; i < nhit; ++i) {
       auto hit = static_cast<SuperLayerHit*>(hc->GetHit(i));
       auto localPos = hit->GetLocalPos();
       analysisManager->FillH2(fSLHistoID[kH2][iDet], localPos.x(), localPos.y());
 
-      analysisManager->FillNtupleIColumn(column, nhit);      
-      analysisManager->FillNtupleIColumn(column+1, hit->GetLayerID());
-      analysisManager->FillNtupleIColumn(column+2, hit->GetCellID());
-      analysisManager->FillNtupleDColumn(column+3, localPos.x());
-      analysisManager->FillNtupleDColumn(column+4, localPos.y());
-      analysisManager->FillNtupleDColumn(column+5, hit->GetTime());
+      // Fill Ntuple Columns
+      analysisManager->FillNtupleIColumn(0, event->GetEventID());
+      analysisManager->FillNtupleIColumn(1, nhit);
+      analysisManager->FillNtupleIColumn(2, iDet+1);
+      
+      analysisManager->FillNtupleIColumn(3, hit->GetLayerID());
+      analysisManager->FillNtupleIColumn(4, hit->GetCellID());
+      analysisManager->FillNtupleDColumn(5, localPos.x());
+      analysisManager->FillNtupleDColumn(6, localPos.y());
+      analysisManager->FillNtupleDColumn(7, hit->GetTime());
+
+      analysisManager->AddNtupleRow();
     }
   }
-
-
-  analysisManager->AddNtupleRow();
 
   //
   // Print diagnostics
