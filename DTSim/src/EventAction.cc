@@ -128,21 +128,25 @@ void EventAction::EndOfEventAction(const G4Event* event)
     if ( ! hc ) return;
 
     auto nhit = hc->GetSize();
-    analysisManager->FillH1(fSLHistoID[kH1][iDet], nhit );
+    analysisManager->FillH1(fSLHistoID[kH1][iDet], nhit);
 
     // columns 0, 1, 2
-    auto column = iDet * 3;
-    analysisManager->FillNtupleIColumn(column,   nhit);
+    auto column = iDet * kNofColumns;
+
 
     for (unsigned long i = 0; i < nhit; ++i) {
       auto hit = static_cast<SuperLayerHit*>(hc->GetHit(i));
       auto localPos = hit->GetLocalPos();
       analysisManager->FillH2(fSLHistoID[kH2][iDet], localPos.x(), localPos.y());
-      analysisManager->FillNtupleDColumn(column+1, hit->GetLayerID());
-      analysisManager->FillNtupleDColumn(column+2, hit->GetCellID());
+
+      analysisManager->FillNtupleIColumn(column, nhit);      
+      analysisManager->FillNtupleIColumn(column+1, hit->GetLayerID());
+      analysisManager->FillNtupleIColumn(column+2, hit->GetCellID());
+      analysisManager->FillNtupleDColumn(column+3, localPos.x());
+      analysisManager->FillNtupleDColumn(column+4, localPos.y());
+      analysisManager->FillNtupleDColumn(column+5, hit->GetTime());
     }
   }
-
 
 
   analysisManager->AddNtupleRow();

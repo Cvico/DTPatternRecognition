@@ -281,7 +281,7 @@ void DetectorConstruction::ConstructMaterials()
   G4double air_density = air->GetDensity();
 
   // Gas mixture
-  auto gas_mixture = new G4Material("GasMixture", air_density*g/cm3, 2);
+  auto gas_mixture = new G4Material("GasMixture", air_density, 2);
   gas_mixture->AddMaterial(nistManager->FindOrBuildMaterial("G4_Ar"), 85*perCent);
   gas_mixture->AddMaterial(nistManager->FindOrBuildMaterial("G4_CARBON_DIOXIDE"), 15*perCent);  
   // Aluminium - Honeycomb (GAP)

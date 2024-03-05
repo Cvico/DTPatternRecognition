@@ -53,7 +53,7 @@ RunAction::RunAction(EventAction* eventAction)
   // Default settings
   analysisManager->SetNtupleMerging(true);
      // Note: merging ntuples is available only with Root output
-  analysisManager->SetFileName("DTSim");
+  analysisManager->SetFileName("DTSimHistos");
 
   // Book histograms, ntuple
 
@@ -80,20 +80,33 @@ analysisManager
   // Creating ntuple
   if ( fEventAction ) {
     analysisManager->CreateNtuple("DTSim", "Hits");
-    analysisManager->CreateNtupleIColumn("SL1Hits");    // column Id = 0
-    analysisManager->CreateNtupleIColumn("SL1LayerNo"); // column Id = 1
-    analysisManager->CreateNtupleIColumn("SL1CellNo");  // column Id = 2
-    analysisManager->CreateNtupleIColumn("SL2Hits");    // column Id = 3
-    analysisManager->CreateNtupleIColumn("SL2LayerNo"); // column Id = 4
-    analysisManager->CreateNtupleIColumn("SL2CellNo");  // column Id = 5
-    analysisManager->CreateNtupleIColumn("SL3Hits");    // column Id = 6
-    analysisManager->CreateNtupleIColumn("SL3LayerNo"); // column Id = 7
-    analysisManager->CreateNtupleIColumn("SL3CellNo");  // column Id = 8
+
+    analysisManager->CreateNtupleIColumn("SL1HitN");        // column Id = 0
+    analysisManager->CreateNtupleIColumn("SL1Hit_LayerNo"); // column Id = 1
+    analysisManager->CreateNtupleIColumn("SL1Hit_CellNo");  // column Id = 2
+    analysisManager->CreateNtupleDColumn("SL1Hit_PosX");    // column Id = 3
+    analysisManager->CreateNtupleDColumn("SL1Hit_PosY");    // column Id = 4
+    analysisManager->CreateNtupleDColumn("SL1Hit_Time");    // column Id = 5
+
+    analysisManager->CreateNtupleIColumn("SL2HitN");        // column Id = 6
+    analysisManager->CreateNtupleIColumn("SL2Hit_LayerNo"); // column Id = 7
+    analysisManager->CreateNtupleIColumn("SL2Hit_CellNo");  // column Id = 8
+    analysisManager->CreateNtupleDColumn("SL2Hit_PosX");    // column Id = 9
+    analysisManager->CreateNtupleDColumn("SL2Hit_PosY");    // column Id = 10
+    analysisManager->CreateNtupleDColumn("SL2Hit_Time");    // column Id = 11
+
+    analysisManager->CreateNtupleIColumn("SL3HitN");        // column Id = 11
+    analysisManager->CreateNtupleIColumn("SL3Hit_LayerNo"); // column Id = 12
+    analysisManager->CreateNtupleIColumn("SL3Hit_CellNo");  // column Id = 13
+    analysisManager->CreateNtupleDColumn("SL3Hit_PosX");    // column Id = 14
+    analysisManager->CreateNtupleDColumn("SL3Hit_PosY");    // column Id = 15
+    analysisManager->CreateNtupleDColumn("SL3Hit_Time");    // column Id = 16
+
     analysisManager->FinishNtuple();
   }
 
   // Set ntuple output file
-  analysisManager->SetNtupleFileName(0, "DTSimntuple");
+  analysisManager->SetNtupleFileName(0, "DTSimNtuple");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

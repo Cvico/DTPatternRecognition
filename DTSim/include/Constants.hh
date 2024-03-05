@@ -36,13 +36,15 @@
 namespace DTSim
 {
   constexpr G4int     kNofLayers = 4;
-  constexpr G4int     kNofCells = 50;
+  constexpr G4int     kNofCells  = 50;
   constexpr G4int     kNoOfCellsInSL  = kNofLayers * kNofCells;
   constexpr G4int     kNofSuperLayers = 3; 
-  constexpr G4double  kCellThickness = 13.*mm;
-  constexpr G4double  kCellWidth     = 42.*mm;
-  constexpr G4double  kGapThickness  = 23.5*cm;
-  constexpr G4double  kYokeThickness = 29*cm;  // The other flavour is 63cm
+  constexpr G4double  kCellThickness  = 13.*mm;
+  constexpr G4double  kCellWidth      = 42.*mm;
+  constexpr G4double  kGapThickness   = 23.5*cm;
+  constexpr G4double  kYokeThickness  = 29*cm;  // The other flavour is 63cm
+
+  constexpr G4int kNofColumns = 6;
 }
 
 #endif
