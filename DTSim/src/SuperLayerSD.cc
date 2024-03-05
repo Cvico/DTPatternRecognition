@@ -66,6 +66,8 @@ void SuperLayerSD::Initialize(G4HCofThisEvent* hce)
 G4bool SuperLayerSD::ProcessHits(G4Step*step, G4TouchableHistory*)
 {
   auto charge = step->GetTrack()->GetDefinition()->GetPDGCharge();
+  auto pdgID  = step->GetTrack()->GetDefinition()->GetPDGEncoding();
+  
   if (charge==0.) return true;
 
   auto preStepPoint = step->GetPreStepPoint();
@@ -84,7 +86,8 @@ G4bool SuperLayerSD::ProcessHits(G4Step*step, G4TouchableHistory*)
   hit->SetWorldPos(worldPos);
   hit->SetLocalPos(localPos);
   hit->SetTime(preStepPoint->GetGlobalTime());
-
+  hit->SetPDGID(pdgID);
+  
   fHitsCollection->insert(hit);
 
   return true;

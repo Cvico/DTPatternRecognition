@@ -122,8 +122,6 @@ void EventAction::EndOfEventAction(const G4Event* event)
   // Get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
   
-
-
   // Drift chambers hits
   for (G4int iDet = 0; iDet < kDim; ++iDet) {
     auto hc = GetHC(event, fSLHCID[iDet]);
@@ -148,6 +146,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
       analysisManager->FillNtupleDColumn(5, localPos.x());
       analysisManager->FillNtupleDColumn(6, localPos.y());
       analysisManager->FillNtupleDColumn(7, hit->GetTime());
+      analysisManager->FillNtupleIColumn(8, hit->GetPDGID());
 
       analysisManager->AddNtupleRow();
     }

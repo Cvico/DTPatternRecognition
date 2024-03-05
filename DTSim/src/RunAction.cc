@@ -76,7 +76,6 @@ analysisManager
     ->CreateH2("SL3 XY","Super Layer 3 X vs Y",           // h2 Id = 2
                50, -1500., 1500, 50, -300., 300.);
 
-
   // Creating ntuple
   if ( fEventAction ) {
     analysisManager->CreateNtuple("DTSim", "Hits");
@@ -90,6 +89,7 @@ analysisManager
     analysisManager->CreateNtupleDColumn("SLHit_PosX");  // column Id = 5
     analysisManager->CreateNtupleDColumn("SLHit_PosY");  // column Id = 6
     analysisManager->CreateNtupleDColumn("SLHit_Time");  // column Id = 7
+    analysisManager->CreateNtupleIColumn("SLHit_PDG");   // column Id = 8    
 
     /*
     analysisManager->CreateNtupleIColumn("SL2HitN");        // column Id = 7

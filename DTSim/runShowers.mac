@@ -17,8 +17,6 @@
 /run/printProgress 0
 #
 /gun/particle mu-
-/DTSim/generator/momentum 1500. GeV
+/DTSim/generator/momentum 2000. GeV
 /DTSim/field/value 2. tesla
-/run/beamOn 100
-
-
+/run/beamOn 1000

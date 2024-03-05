@@ -76,6 +76,9 @@ class SuperLayerHit : public G4VHit
     void SetLayerID(G4int z) { fLayerID = z; }
     G4int GetLayerID() const { return fLayerID; }
 
+    void SetPDGID(G4int id) { fPDGID = id; }
+    G4int GetPDGID() { return fPDGID; }
+  
     void SetTime(G4double t) { fTime = t; }
     G4double GetTime() const { return fTime; }
 
@@ -92,6 +95,7 @@ class SuperLayerHit : public G4VHit
 
     G4int fCellID = -1;
     G4int fLayerID = -1;
+    G4int fPDGID = -1;
     G4double fTime = 0.;
     G4ThreeVector fLocalPos;
     G4ThreeVector fWorldPos;
